@@ -28,26 +28,7 @@ import java.util.concurrent.CompletableFuture;
 public class slashCommands extends ListenerAdapter {
 
 
-public static  long test_latency(String URLs)
-{
 
-        long StartTimer=System.currentTimeMillis();
-        try
-        {
-            InetAddress address=InetAddress.getByName(URLs);
-            if(address.isReachable(10000))
-            {
-                long StopTimer=System.currentTimeMillis();
-                return StopTimer-StartTimer;
-            }
-        }
-        catch (Exception e)
-        {
-            return 9999L;
-        }
-
-    return -1L;
-}
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -104,10 +85,8 @@ public static  long test_latency(String URLs)
 
                 event.replyEmbeds(Eping.build()).queue();
             }
-
-
-
                 break;
+
             case "info":
             {
                 EmbedBuilder eb = new EmbedBuilder();
@@ -117,19 +96,11 @@ public static  long test_latency(String URLs)
                 try {
                    
                     String pomFilePath = "pom.xml";
-
-                   
                     MavenXpp3Reader reader = new MavenXpp3Reader();
-
-                   
                     Model model = reader.read(new FileReader(pomFilePath));
-
-                    
-
                     String JDA_version = model.getDependencies().get(1).getVersion();
                     String LAVA_version = model.getDependencies().get(2).getVersion();
 
-                 
                     eb.setDescription("dependencies versions");
                     eb.addField("JDA","**ver. "+JDA_version+"**",true);
                     eb.addField("LavaPlayer","**ver. "+LAVA_version+"**",true);
@@ -138,19 +109,12 @@ public static  long test_latency(String URLs)
                     e.printStackTrace();
                 }
 
-
-
-
-
                 eb.setFooter("send by "+event.getUser().getName(), event.getUser().getAvatarUrl() );
                 eb.setTimestamp(Instant.now());
-
-
-
                 event.replyEmbeds(eb.build()).queue();
-            }
+            }break;
 
-                break;
+
 
             default:
                 event.reply(event.getName() +" is command that we still working on").queue();
