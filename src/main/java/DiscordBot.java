@@ -17,20 +17,20 @@ public class DiscordBot {
     public static void main(String[] args) throws LoginException  {
         Dotenv dotenv = Dotenv.load();
 
-        String TOKEN = dotenv.get("JAVA_TOKEN");
+        String TOKEN = dotenv.get("JAVA_TOKEN2");
         JDABuilder jdaBuilder = JDABuilder.createDefault(TOKEN);
 
         JDA jda =jdaBuilder
                 .enableIntents(GatewayIntent.GUILD_MESSAGES,GatewayIntent.MESSAGE_CONTENT)
                 .addEventListeners(new EventListener(),new slashCommands())
-                .setActivity(Activity.watching("dzieci w lesie"))
+                .setActivity(Activity.watching("India tutorial"))
                 .build();
 
 
 
 
 
-        jda.updateCommands().addCommands().queue();
+        //jda.updateCommands().addCommands().queue();
 
         jda.upsertCommand("ping","send pong").queue();
         jda.upsertCommand("info","send info").queue();

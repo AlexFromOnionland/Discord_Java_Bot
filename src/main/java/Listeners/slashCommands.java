@@ -94,7 +94,7 @@ public class slashCommands extends ListenerAdapter {
 
                 event.replyEmbeds(Eping.build()).queue();
             }
-                break;
+            break;
 
             case "info":
             {
