@@ -3,8 +3,15 @@ package Listeners;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.apache.http.util.VersionInfo;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -27,7 +34,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class slashCommands extends ListenerAdapter {
 
-
+    private TextChannel USER_CHANNEL;
+    private String MESSAGE_TYPE = "text";
+    private String MESSAGE_COLOR = "#000000";
 
 
     @Override
@@ -114,7 +123,23 @@ public class slashCommands extends ListenerAdapter {
                 event.replyEmbeds(eb.build()).queue();
             }break;
 
+            case "send":
+            {
+                this.USER_CHANNEL = event.getOption("channel").getAsChannel().asTextChannel();
+                this.MESSAGE_TYPE = event.getSubcommandName();
+                if (this.MESSAGE_TYPE.equals("embed")) {
+                    this.MESSAGE_COLOR = event.getOption("color").getAsString();
+                }
 
+                if (!this.USER_CHANNEL.canTalk()) {
+                    event.reply("can ot sent message to this channel. Has no permission to see it").setEphemeral(true).queue();
+                } else {
+                    TextInput user_prompt = TextInput.create("user_prompt", "send message trough bot", TextInputStyle.PARAGRAPH).setPlaceholder("Your content go here").setMinLength(1).setMaxLength(1000).setRequired(true).build();
+                    Modal modal = Modal.create("bot_send_command", "Create message").addActionRow(new ItemComponent[]{user_prompt}).build();
+                    event.replyModal(modal).queue();
+                }
+            }
+            break;
 
             default:
                 event.reply(event.getName() +" is command that we still working on").queue();
@@ -122,5 +147,40 @@ public class slashCommands extends ListenerAdapter {
 
 
         }
+    }
+
+    @Override
+    public void onModalInteraction(ModalInteractionEvent event) {
+        if (event.getModalId().equals("bot_send_command")) {
+            ModalMapping userinfo = event.getValue("user_prompt");
+            String String_user_prompt = userinfo.getAsString();
+            if (this.MESSAGE_TYPE.equals("embed")) {
+                EmbedBuilder modEB = new EmbedBuilder();
+                modEB.setDescription(String_user_prompt);
+                Color user_color = Color.decode(this.MESSAGE_COLOR);
+                modEB.setColor(new Color(user_color.getRed(), user_color.getGreen(), user_color.getBlue()));
+                modEB.setFooter("send by " + event.getUser().getName(), event.getUser().getAvatarUrl());
+                modEB.setTimestamp(Instant.now());
+                modEB.build();
+                this.USER_CHANNEL.sendMessageEmbeds(modEB.build(), new MessageEmbed[0]).queue();
+            } else {
+                this.USER_CHANNEL.sendMessage(String_user_prompt + "\n\n-------------------------\nmessage was by **" + event.getUser().getName() + "**").queue();
+            }
+
+            event.reply("message was sent to " + this.USER_CHANNEL.getAsMention()).setEphemeral(true).queue();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
